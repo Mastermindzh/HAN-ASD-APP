@@ -1,5 +1,6 @@
 package nl.han.ica.icss.checker;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import nl.han.ica.icss.ast.*;
 
 import java.util.ArrayList;
@@ -107,12 +108,17 @@ public class Checker {
     private ValueType checkValueType(Value v) {
         if (v instanceof ConstantReference) {
             ConstantReference value = (ConstantReference) v;
-            if (symboltable.get(value.name) == null) {
-                return ValueType.UNDEFINED;
-            } else {
-                return checkValueType(symboltable.get(value.name));
+            if(!isCircularReference(value)){
+                if (symboltable.get(value.name) == null) {
+                    return ValueType.UNDEFINED;
+                } else {
+                    return checkValueType(symboltable.get(value.name));
+                }
             }
-        } else {
+        }else if(v instanceof Operation){
+            return checkOperation((Operation) v);
+        }
+        else {
             if (v instanceof PercentageLiteral) {
                 return ValueType.PERCENTAGE;
             } else if (v instanceof PixelLiteral) {
@@ -136,16 +142,42 @@ public class Checker {
             if (reference.name.equals(nodeName)) {
                 node.setError("You can't assign a constant to itself.");
                 error = true;
+            }else{
+                isCircularReference(reference);
             }
         }
+        if(node.value instanceof Operation){
+            checkOperation((Operation) node.value);
+        }
+
         // if no error has been found add it to symboltable.
         if (!error) {
             symboltable.put(nodeName, ((Assignment) node).value);
         }
+    }
 
+    private boolean isCircularReference(ConstantReference node){
         // check circular reference
         //todo: check circular reference
+        ArrayList<String> trail = new ArrayList<>();
+        trail.add(node.name);
 
+        String previousName = node.name;
+        boolean running = true;
+        boolean isCircular = false;
+        while((symboltable.get(previousName) instanceof ConstantReference) && running){
+            ConstantReference newReference = (ConstantReference) symboltable.get(previousName);
+            if(!trail.contains(newReference.name)){
+                trail.add(newReference.name);
+                previousName = newReference.name;
+            }else{
+                node.setError("Circular reference detected.");
+                running = false;
+                isCircular = true;
+            }
+        }
+
+        return isCircular;
     }
 
     private void checkReference(ConstantReference node) {

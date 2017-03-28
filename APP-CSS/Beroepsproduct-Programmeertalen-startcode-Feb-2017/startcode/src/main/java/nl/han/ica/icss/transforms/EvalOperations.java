@@ -43,7 +43,8 @@ public class EvalOperations implements Transform {
         Value right;
         if (operation.lhs instanceof Operation) {
             left = solveOperation((Operation) operation.lhs);
-        } else {
+        }
+        else {
             left = operation.lhs;
         }
 
