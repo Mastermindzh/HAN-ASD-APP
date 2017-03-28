@@ -17,36 +17,53 @@ public class InlineConstants implements Transform {
             transformNode(((Stylerule) node));
         });
     }
-    private void transformNode(Stylerule parent){
-        for (ASTNode child: parent.getChildren()) {
-            if(child instanceof Declaration){
+
+    /**
+     * Apply inline transformation to a stylerule.
+     * @param parent start node
+     */
+    private void transformNode(Stylerule parent) {
+        for (ASTNode child : parent.getChildren()) {
+            if (child instanceof Declaration) {
                 transformDeclaration(((Declaration) child));
             }
             // make sure we can handle nesting
-            else if(child instanceof Stylerule){
+            else if (child instanceof Stylerule) {
                 transformNode(((Stylerule) child));
             }
         }
     }
 
-    private void transformDeclaration(Declaration declaration){
+    /**
+     * Apply inline transformation to a declaration.
+     * @param declaration start node
+     */
+    private void transformDeclaration(Declaration declaration) {
         if (declaration.value instanceof ConstantReference) {
-            declaration.value = symbolTable.get(((ConstantReference)declaration.value).name);
+            declaration.value = symbolTable.get(((ConstantReference) declaration.value).name);
         } else if (declaration.value instanceof Operation) {
             transformOperation(((Operation) declaration.value));
         }// else ignore
     }
 
-    private void transformOperation(Operation operation){
+    /**
+     * Apply inline transformation to an operation.
+     * @param operation start node
+     */
+    private void transformOperation(Operation operation) {
         operation.lhs = transformValue(operation.lhs);
         operation.rhs = transformValue(operation.rhs);
     }
 
-    private Value transformValue(Value v){
-        if(v instanceof ConstantReference){
-            ConstantReference value = ((ConstantReference)v);
+    /**
+     * Apply inline transformation to a value.
+     * @param v start node
+     */
+    private Value transformValue(Value v) {
+        if (v instanceof ConstantReference) {
+            ConstantReference value = ((ConstantReference) v);
             return symbolTable.get(value.name);
-        }else if(v instanceof Operation){ // we gotta handle all the operations
+        } else if (v instanceof Operation) { // we gotta handle all the operations
             transformOperation(((Operation) v));
         }
         return v;

@@ -38,9 +38,12 @@ public class InputPane extends BorderPane {
 		}
 	}
 
+	/**
+	 * Automatically fill the input field with test data
+	 */
 	private void setDefaultCSS(){
 		content.setText("$linkcolor = #ff0000;\n" +
-				"$parwidth = 500px;\n" +
+				"$parwidth = 450px + 50px;\n" +
 				"\n" +
 				"p {\n" +
 				"\tbackground-color: #ffffff;\n" +
@@ -61,7 +64,11 @@ public class InputPane extends BorderPane {
 				"\n" +
 				".menu {\n" +
 				"\tcolor: #000000;\n" +
-				"}\n");
+				"}\n" +
+				"\n" +
+				".testRecursion {\n" +
+				"\twidth: 50px + 50px + 50px + 50px + 50px;\n" +
+				"}");
 	}
 
 	public String getText() {
