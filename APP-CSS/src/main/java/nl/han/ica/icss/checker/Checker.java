@@ -23,6 +23,7 @@ public class Checker {
         colourProperties.add("color");
         colourProperties.add("background-color");
         sizeProperties.add("width");
+        sizeProperties.add("height");
     }
 
     public void check(AST ast) {
