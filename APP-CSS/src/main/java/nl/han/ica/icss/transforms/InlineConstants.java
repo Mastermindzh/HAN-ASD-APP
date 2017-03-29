@@ -40,7 +40,7 @@ public class InlineConstants implements Transform {
      */
     private void transformDeclaration(Declaration declaration) {
         if (declaration.value instanceof ConstantReference) {
-            declaration.value = symbolTable.get(((ConstantReference) declaration.value).name);
+            declaration.value = transformValue(declaration.value);
         } else if (declaration.value instanceof Operation) {
             transformOperation(((Operation) declaration.value));
         }// else ignore
@@ -62,7 +62,12 @@ public class InlineConstants implements Transform {
     private Value transformValue(Value v) {
         if (v instanceof ConstantReference) {
             ConstantReference value = ((ConstantReference) v);
-            return symbolTable.get(value.name);
+            Value result = symbolTable.get(value.name);
+            if(result instanceof ConstantReference){
+                return transformValue(result);
+            }else{
+                return symbolTable.get(value.name);
+            }
         } else if (v instanceof Operation) { // we gotta handle all the operations
             transformOperation(((Operation) v));
         }
